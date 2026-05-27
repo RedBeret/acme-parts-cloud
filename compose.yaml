@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: acmeparts
+      POSTGRES_USER: acme
+      POSTGRES_PASSWORD: acme
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acme -d acmeparts"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://acme:acme@db:5432/acmeparts
+      SEED: "42"
+      MESSINESS: "medium"
+      PARTS_COUNT: "${PARTS_COUNT:-5000}"
+      SUPPLIERS_COUNT: "${SUPPLIERS_COUNT:-400}"
+      USERS_COUNT: "${USERS_COUNT:-150}"
+      REVISION_PARTS_COUNT: "${REVISION_PARTS_COUNT:-3000}"
+      CHANGE_ORDERS_COUNT: "${CHANGE_ORDERS_COUNT:-20000}"
+      PURCHASE_ORDERS_COUNT: "${PURCHASE_ORDERS_COUNT:-30000}"
+      AUDIT_LOG_COUNT: "${AUDIT_LOG_COUNT:-200000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python -m app.seed.run && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  pgdata:
