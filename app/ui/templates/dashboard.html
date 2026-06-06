@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Meridian Fabrication Co. — Operations Dashboard</h1>
+
+<div class="grid-4" style="margin-bottom: 24px;">
+  <div class="card stat">
+    <div class="value">{{ "{:,}".format(parts_count) }}</div>
+    <div class="label">Parts</div>
+  </div>
+  <div class="card stat">
+    <div class="value">{{ "{:,}".format(suppliers_count) }}</div>
+    <div class="label">Suppliers</div>
+  </div>
+  <div class="card stat">
+    <div class="value">{{ "{:,}".format(co_count) }}</div>
+    <div class="label">Change Orders</div>
+  </div>
+  <div class="card stat">
+    <div class="value" style="color: #dc2626;">{{ "{:,}".format(open_cos) }}</div>
+    <div class="label">Open Change Orders</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Quick Links</h2>
+  <p style="color: #64748b; font-size: 13px; line-height: 1.8;">
+    <a href="/parts">Browse parts →</a> &nbsp;|&nbsp;
+    <a href="/suppliers">Browse suppliers →</a> &nbsp;|&nbsp;
+    <a href="/change-orders">Open change orders →</a> &nbsp;|&nbsp;
+    <a href="/docs">OpenAPI / Swagger →</a>
+  </p>
+</div>
+
+<div class="card">
+  <h2>API Quick Reference</h2>
+  <table>
+    <tr><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><code>GET /api/parts</code></td><td>List parts (paginated, filterable)</td></tr>
+    <tr><td><code>GET /api/suppliers</code></td><td>List suppliers</td></tr>
+    <tr><td><code>GET /api/change-orders</code></td><td>List change orders</td></tr>
+    <tr><td><code>POST /admin/reset?seed=N</code></td><td>Reseed database deterministically</td></tr>
+    <tr><td><code>GET /admin/healthz</code></td><td>Health check</td></tr>
+  </table>
+</div>
+{% endblock %}

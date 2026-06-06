@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Suppliers{% endblock %}
+{% block content %}
+<h1>Suppliers</h1>
+<div class="search-bar">
+  <form method="get" style="display:flex; gap: 8px;">
+    <input type="text" name="search" value="{{ search }}" placeholder="Search supplier name or code...">
+    <button type="submit" style="padding: 6px 14px; background: #1e293b; color: #fff;
+      border: none; border-radius: 6px; cursor: pointer;">Search</button>
+  </form>
+</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Code</th><th>Name</th><th>Country</th><th>Email</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for s in suppliers %}
+      <tr>
+        <td><code>{{ s.code }}</code></td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.country or '—' }}</td>
+        <td style="font-size:12px;">{{ s.contact_email or '—' }}</td>
+        <td>
+          {% if s.active %}
+            <span class="badge badge-green">active</span>
+          {% else %}
+            <span class="badge badge-red">inactive</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p style="margin-top:12px; font-size:12px; color:#64748b;">
+    Showing {{ suppliers|length }} of 400 suppliers.
+  </p>
+</div>
+{% endblock %}
