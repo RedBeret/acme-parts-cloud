@@ -10,6 +10,8 @@ A self-contained FastAPI + PostgreSQL sandbox that ships 5,000+ parts, 400 suppl
 
 Built for engineers who need a realistic target system to build and demo data pipelines, ETL connectors, or AI-assisted data cleaning without touching production.
 
+<p align="center"><img src="demo/demo.gif" alt="Seeding a messy enterprise database in one command" width="820"></p>
+
 ---
 
 ## What's Inside
