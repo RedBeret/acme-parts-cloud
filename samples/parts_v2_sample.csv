@@ -1,0 +1,6 @@
+partNo,partName,uom,cat,status,legacy_ref
+PN-0001,Hex Bolt M6,EA,Fasteners,active,
+2019-PN-0042,Nylon Washer,EA,Fasteners,active,
+P7,Bearing Race (legacy),EA,Bearings,obsolete,BRG-007
+PN-0099,Compression Spring,EA,Springs,active,
+2019-PN-0107,Valve Stem,EA,Pneumatics,active,

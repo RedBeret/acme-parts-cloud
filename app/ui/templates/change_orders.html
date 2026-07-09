@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Change Orders{% endblock %}
+{% block content %}
+<h1>Change Orders</h1>
+<div class="search-bar">
+  <form method="get" style="display:flex; gap: 8px;">
+    <select name="state">
+      <option value="">All states</option>
+      <option value="open" {% if state == 'open' %}selected{% endif %}>open</option>
+      <option value="OPEN" {% if state == 'OPEN' %}selected{% endif %}>OPEN</option>
+      <option value="in-review" {% if state == 'in-review' %}selected{% endif %}>in-review</option>
+      <option value="approved" {% if state == 'approved' %}selected{% endif %}>approved</option>
+      <option value="closed" {% if state == 'closed' %}selected{% endif %}>closed</option>
+    </select>
+    <button type="submit" style="padding: 6px 14px; background: #1e293b; color: #fff;
+      border: none; border-radius: 6px; cursor: pointer;">Filter</button>
+  </form>
+</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>CO Number</th><th>Part ID</th><th>State</th>
+        <th>Priority</th><th>Requested By</th><th>Opened</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for co in change_orders %}
+      <tr>
+        <td><code>{{ co.co_number }}</code></td>
+        <td>{{ co.part_id }}</td>
+        <td>
+          {% if co.state in ['open', 'OPEN', 'In-Work', 'in_review'] %}
+            <span class="badge badge-yellow">{{ co.state }}</span>
+          {% elif co.state in ['approved', 'Approved'] %}
+            <span class="badge badge-green">{{ co.state }}</span>
+          {% elif co.state in ['closed', 'CLOSED'] %}
+            <span class="badge badge-gray">{{ co.state }}</span>
+          {% else %}
+            <span class="badge badge-red">{{ co.state }}</span>
+          {% endif %}
+        </td>
+        <td>{{ co.priority }}</td>
+        <td>{{ co.requested_by or '—' }}</td>
+        <td style="font-size:12px;">{{ co.opened_at.strftime('%Y-%m-%d') if co.opened_at else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p style="margin-top:12px; font-size:12px; color:#64748b;">
+    Showing {{ change_orders|length }} most recent change orders.
+    Notice mixed state vocabulary — this is documented in
+    <a href="/QUIRKS.md">QUIRKS.md</a>.
+  </p>
+</div>
+{% endblock %}

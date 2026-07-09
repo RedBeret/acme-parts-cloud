@@ -1,0 +1,6 @@
+partNo,partName,cat,measure,status
+PN-0001,Hex Bolt M6,Fasteners,EA,active
+2019-PN-0042,Nylon Washer,Fasteners,EA,active
+P7,Bearing Race (legacy),Bearings,EA,obsolete
+PN-0099,Compression Spring,Springs,EA,active
+2019-PN-0107,Valve Stem,Pneumatics,EA,active

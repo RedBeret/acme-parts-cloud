@@ -1,0 +1,6 @@
+supplier_code,name,country,contact_email,active
+VRT-001,Vortex Metals,US,procurement@vortex.com,1
+VRT-001B,Vortex Metals Inc.,US,procurement@vortex.com,1
+APC-022,Apex Composites,CA,info@apexcomp.ca,1
+GBL-055,Global Bearings Ltd,GB,sales@globalbear.co.uk,0
+APC-099,Apex Composites Corp,CA,info@apexcomp.ca,1
