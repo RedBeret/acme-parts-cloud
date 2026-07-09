@@ -1,5 +1,4 @@
 """Suppliers API router."""
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -16,8 +15,8 @@ class SupplierOut(BaseModel):
     id: int
     name: str
     code: str
-    country: Optional[str] = None
-    contact_email: Optional[str] = None
+    country: str | None = None
+    contact_email: str | None = None
     active: bool
 
     model_config = {"from_attributes": True}
@@ -26,25 +25,22 @@ class SupplierOut(BaseModel):
 class SupplierCreate(BaseModel):
     name: str
     code: str
-    country: Optional[str] = None
-    contact_email: Optional[str] = None
+    country: str | None = None
+    contact_email: str | None = None
     active: bool = True
 
 
 @router.get("", response_model=dict)
 def list_suppliers(
-    search: Optional[str] = Query(None),
-    active: Optional[bool] = Query(None),
-    after: Optional[int] = Query(None),
+    search: str | None = Query(None),
+    active: bool | None = Query(None),
+    after: int | None = Query(None),
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
 ):
     q = db.query(Supplier)
     if search:
-        q = q.filter(
-            or_(Supplier.name.ilike(f"%{search}%"),
-                Supplier.code.ilike(f"%{search}%"))
-        )
+        q = q.filter(or_(Supplier.name.ilike(f"%{search}%"), Supplier.code.ilike(f"%{search}%")))
     if active is not None:
         q = q.filter(Supplier.active == active)
     if after:

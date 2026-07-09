@@ -1,4 +1,5 @@
 """Admin / ops endpoints."""
+
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 

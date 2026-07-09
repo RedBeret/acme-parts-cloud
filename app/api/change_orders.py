@@ -1,5 +1,4 @@
 """Change Orders API router."""
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -18,26 +17,28 @@ class ChangeOrderOut(BaseModel):
     part_id: int
     state: str
     priority: str
-    description: Optional[str] = None
-    requested_by: Optional[str] = None
+    description: str | None = None
+    requested_by: str | None = None
 
     model_config = {"from_attributes": True}
 
 
 @router.get("", response_model=dict)
 def list_change_orders(
-    search: Optional[str] = Query(None),
-    state: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
-    after: Optional[int] = Query(None),
+    search: str | None = Query(None),
+    state: str | None = Query(None),
+    priority: str | None = Query(None),
+    after: int | None = Query(None),
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
 ):
     q = db.query(ChangeOrder)
     if search:
         q = q.filter(
-            or_(ChangeOrder.co_number.ilike(f"%{search}%"),
-                ChangeOrder.description.ilike(f"%{search}%"))
+            or_(
+                ChangeOrder.co_number.ilike(f"%{search}%"),
+                ChangeOrder.description.ilike(f"%{search}%"),
+            )
         )
     if state:
         q = q.filter(ChangeOrder.state == state)

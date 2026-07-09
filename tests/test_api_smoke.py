@@ -5,6 +5,7 @@ Skip these in CI (requires Docker + Postgres). Run locally with:
 
 All data is synthetic.
 """
+
 import os
 
 import pytest
@@ -19,6 +20,7 @@ pytestmark = pytest.mark.skipif(
 
 def test_healthz():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/admin/healthz")
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
@@ -26,6 +28,7 @@ def test_healthz():
 
 def test_list_parts_pagination():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/api/parts", params={"limit": 10})
     assert r.status_code == 200
     data = r.json()
@@ -36,6 +39,7 @@ def test_list_parts_pagination():
 
 def test_list_parts_search():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/api/parts", params={"search": "PN-"})
     assert r.status_code == 200
     items = r.json()["items"]
@@ -44,6 +48,7 @@ def test_list_parts_search():
 
 def test_list_suppliers():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/api/suppliers", params={"limit": 5})
     assert r.status_code == 200
     assert len(r.json()["items"]) == 5
@@ -51,6 +56,7 @@ def test_list_suppliers():
 
 def test_list_change_orders():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/api/change-orders", params={"limit": 5})
     assert r.status_code == 200
     assert len(r.json()["items"]) == 5
@@ -58,5 +64,6 @@ def test_list_change_orders():
 
 def test_get_nonexistent_part():
     import httpx
+
     r = httpx.get(f"{SMOKE_URL}/api/parts/999999999")
     assert r.status_code == 404

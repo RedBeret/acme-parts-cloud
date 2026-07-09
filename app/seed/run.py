@@ -6,13 +6,20 @@ Usage:
 
 All data is synthetic. Meridian Fabrication Co. is fictional.
 """
+
 import sys
 
 from sqlalchemy import text
 
 from app.database import Base, SessionLocal, engine
 from app.models import (  # noqa: F401 — needed for Base.metadata
-    AuditLog, ChangeOrder, Part, PartRevision, PurchaseOrder, Supplier, User,
+    AuditLog,
+    ChangeOrder,
+    Part,
+    PartRevision,
+    PurchaseOrder,
+    Supplier,
+    User,
 )
 from app.seed import generators as gen
 from app.seed.manifest import write_manifest
@@ -67,16 +74,11 @@ def seed(reset: bool = False) -> None:
         db.flush()
         stats["suppliers_count"] = len(supplier_rows)
         stats["bad_email_count"] = sum(
-            1 for s in supplier_rows
-            if s["contact_email"] and "@" not in s["contact_email"]
+            1 for s in supplier_rows if s["contact_email"] and "@" not in s["contact_email"]
         )
-        stats["defunct_supplier_count"] = sum(
-            1 for s in supplier_rows if not s["active"]
-        )
+        stats["defunct_supplier_count"] = sum(1 for s in supplier_rows if not s["active"])
 
-        supplier_ids = [
-            r[0] for r in db.execute(text("SELECT id FROM suppliers")).fetchall()
-        ]
+        supplier_ids = [r[0] for r in db.execute(text("SELECT id FROM suppliers")).fetchall()]
 
         print("[seed] Generating part revisions...")
         rev_rows = gen.generate_revisions(part_ids[:3000])  # revisions for first 3k parts
@@ -90,11 +92,13 @@ def seed(reset: bool = False) -> None:
         db.flush()
         stats["change_orders_count"] = len(co_rows)
         stats["co_state_mess_count"] = sum(
-            1 for c in co_rows if c["state"] not in ("open", "in-review", "approved",
-                                                       "closed", "rejected")
+            1
+            for c in co_rows
+            if c["state"] not in ("open", "in-review", "approved", "closed", "rejected")
         )
         stats["co_date_flip_count"] = sum(
-            1 for c in co_rows
+            1
+            for c in co_rows
             if c["closed_at"] and c["opened_at"] and c["closed_at"] < c["opened_at"]
         )
 
@@ -109,8 +113,7 @@ def seed(reset: bool = False) -> None:
 
         print("[seed] Writing audit log skeleton...")
         audit_rows = [
-            {"entity": "parts", "entity_id": pid, "action": "create",
-             "actor": None, "ts": None}
+            {"entity": "parts", "entity_id": pid, "action": "create", "actor": None, "ts": None}
             for pid in part_ids[:5000]
         ]
         db.bulk_insert_mappings(AuditLog, audit_rows)

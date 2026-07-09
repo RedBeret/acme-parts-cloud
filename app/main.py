@@ -3,11 +3,11 @@
 Fictional company: Meridian Fabrication Co.
 All data is synthetic.
 """
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, text
+from sqlalchemy import func
 
 from app.api import admin, change_orders, parts, suppliers
 from app.database import SessionLocal
@@ -15,10 +15,7 @@ from app.models import ChangeOrder, Part, Supplier
 
 app = FastAPI(
     title="AcmeParts Cloud",
-    description=(
-        "Synthetic enterprise sandbox — Meridian Fabrication Co. "
-        "All data is fictional."
-    ),
+    description=("Synthetic enterprise sandbox — Meridian Fabrication Co. All data is fictional."),
     version="1.0.0",
 )
 
@@ -33,23 +30,29 @@ app.include_router(admin.router)
 
 # ── UI routes (server-rendered Jinja2 + HTMX) ────────────────────────────────
 
+
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request):
     with SessionLocal() as db:
         parts_count = db.query(func.count(Part.id)).scalar()
         suppliers_count = db.query(func.count(Supplier.id)).scalar()
         co_count = db.query(func.count(ChangeOrder.id)).scalar()
-        open_cos = db.query(func.count(ChangeOrder.id)).filter(
-            ChangeOrder.state.in_(["open", "OPEN", "In-Work"])
-        ).scalar()
+        open_cos = (
+            db.query(func.count(ChangeOrder.id))
+            .filter(ChangeOrder.state.in_(["open", "OPEN", "In-Work"]))
+            .scalar()
+        )
 
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "parts_count": parts_count,
-        "suppliers_count": suppliers_count,
-        "co_count": co_count,
-        "open_cos": open_cos,
-    })
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "parts_count": parts_count,
+            "suppliers_count": suppliers_count,
+            "co_count": co_count,
+            "open_cos": open_cos,
+        },
+    )
 
 
 @app.get("/parts", response_class=HTMLResponse)
@@ -62,12 +65,15 @@ def parts_list(request: Request, search: str = "", status: str = ""):
             q = q.filter(Part.status == status)
         items = q.order_by(Part.id).limit(200).all()
 
-    return templates.TemplateResponse("parts.html", {
-        "request": request,
-        "parts": items,
-        "search": search,
-        "status": status,
-    })
+    return templates.TemplateResponse(
+        "parts.html",
+        {
+            "request": request,
+            "parts": items,
+            "search": search,
+            "status": status,
+        },
+    )
 
 
 @app.get("/suppliers", response_class=HTMLResponse)
@@ -78,11 +84,14 @@ def suppliers_list(request: Request, search: str = ""):
             q = q.filter(Supplier.name.ilike(f"%{search}%"))
         items = q.order_by(Supplier.id).limit(200).all()
 
-    return templates.TemplateResponse("suppliers.html", {
-        "request": request,
-        "suppliers": items,
-        "search": search,
-    })
+    return templates.TemplateResponse(
+        "suppliers.html",
+        {
+            "request": request,
+            "suppliers": items,
+            "search": search,
+        },
+    )
 
 
 @app.get("/change-orders", response_class=HTMLResponse)
@@ -93,8 +102,11 @@ def change_orders_list(request: Request, state: str = ""):
             q = q.filter(ChangeOrder.state == state)
         items = q.order_by(ChangeOrder.id.desc()).limit(200).all()
 
-    return templates.TemplateResponse("change_orders.html", {
-        "request": request,
-        "change_orders": items,
-        "state": state,
-    })
+    return templates.TemplateResponse(
+        "change_orders.html",
+        {
+            "request": request,
+            "change_orders": items,
+            "state": state,
+        },
+    )

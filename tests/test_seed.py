@@ -3,9 +3,8 @@
 These tests run without Docker — they exercise the generator functions directly.
 All data is synthetic.
 """
-import os
 
-import pytest
+import os
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 os.environ.setdefault("SEED", "42")
@@ -19,8 +18,8 @@ from app.seed.generators import (
     generate_users,
 )
 
-
 # ── Determinism ───────────────────────────────────────────────────────────────
+
 
 def test_parts_deterministic():
     """Same seed → same output."""
@@ -36,7 +35,7 @@ def test_suppliers_deterministic():
 
 
 def test_change_orders_deterministic():
-    parts = generate_parts(20)
+    generate_parts(20)
     users = generate_users(10)
     part_ids = list(range(1, 21))
     user_names = [u["name"] for u in users]
@@ -46,6 +45,7 @@ def test_change_orders_deterministic():
 
 
 # ── Row counts ────────────────────────────────────────────────────────────────
+
 
 def test_parts_count():
     parts = generate_parts(5000)
@@ -69,6 +69,7 @@ def test_users_count():
 
 # ── Messiness properties ──────────────────────────────────────────────────────
 
+
 def test_parts_have_format_drift():
     """Medium messiness should produce some legacy-format part numbers."""
     parts = generate_parts(5000)
@@ -85,7 +86,7 @@ def test_suppliers_have_bad_emails():
 
 def test_change_orders_have_state_mess():
     """Medium messiness should produce mixed-vocabulary state values."""
-    parts = generate_parts(50)
+    generate_parts(50)
     users = generate_users(10)
     part_ids = list(range(1, 51))
     user_names = [u["name"] for u in users]
@@ -97,18 +98,26 @@ def test_change_orders_have_state_mess():
 
 # ── Manifest ──────────────────────────────────────────────────────────────────
 
+
 def test_manifest_written(tmp_path, monkeypatch):
     monkeypatch.setenv("MANIFEST_PATH", str(tmp_path / "mess_manifest.json"))
     from app.seed.manifest import write_manifest
+
     stats = {
-        "parts_count": 100, "revisions_count": 300, "suppliers_count": 50,
-        "change_orders_count": 200, "purchase_orders_count": 500,
-        "users_count": 20, "audit_log_count": 100,
-        "part_fmt_drift_count": 5, "bad_email_count": 3,
+        "parts_count": 100,
+        "revisions_count": 300,
+        "suppliers_count": 50,
+        "change_orders_count": 200,
+        "purchase_orders_count": 500,
+        "users_count": 20,
+        "audit_log_count": 100,
+        "part_fmt_drift_count": 5,
+        "bad_email_count": 3,
     }
     path = write_manifest(stats)
     assert path.exists()
     import json
+
     data = json.loads(path.read_text())
     assert data["seed"] == 42
     assert data["row_counts"]["parts"] == 100
@@ -117,10 +126,12 @@ def test_manifest_written(tmp_path, monkeypatch):
 
 # ── Export (schema only, no DB) ───────────────────────────────────────────────
 
+
 def test_export_parts_v1_schema(tmp_path):
     """parts_v1.csv should use the legacy column names."""
     import csv
     import io
+
     from app.seed.generators import generate_parts
 
     parts = generate_parts(10)
@@ -128,8 +139,7 @@ def test_export_parts_v1_schema(tmp_path):
     writer = csv.writer(output)
     writer.writerow(["partNo", "partName", "cat", "measure", "partStatus"])
     for p in parts:
-        writer.writerow([p["part_number"], p["name"], p["category"],
-                          p["uom"], p["status"]])
+        writer.writerow([p["part_number"], p["name"], p["category"], p["uom"], p["status"]])
     output.seek(0)
     reader = csv.DictReader(output)
     row = next(reader)

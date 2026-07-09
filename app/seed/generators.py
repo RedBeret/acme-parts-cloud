@@ -3,9 +3,10 @@
 All generated data is fictional. Meridian Fabrication Co. is a synthetic company.
 Seed value controls all randomness — same seed + messiness → same output.
 """
+
 import os
 import random
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from faker import Faker
 
@@ -13,22 +14,59 @@ SEED = int(os.getenv("SEED", "42"))
 MESSINESS = os.getenv("MESSINESS", "medium")  # clean | medium | chaos
 
 MESS_RATES = {
-    "clean": {"part_fmt_drift": 0.02, "supplier_dupe": 0.03, "bad_email": 0.02,
-              "state_case": 0.01, "date_flip": 0.01, "price_error": 0.01},
-    "medium": {"part_fmt_drift": 0.12, "supplier_dupe": 0.10, "bad_email": 0.08,
-               "state_case": 0.10, "date_flip": 0.05, "price_error": 0.05},
-    "chaos": {"part_fmt_drift": 0.30, "supplier_dupe": 0.25, "bad_email": 0.20,
-              "state_case": 0.25, "date_flip": 0.15, "price_error": 0.15},
+    "clean": {
+        "part_fmt_drift": 0.02,
+        "supplier_dupe": 0.03,
+        "bad_email": 0.02,
+        "state_case": 0.01,
+        "date_flip": 0.01,
+        "price_error": 0.01,
+    },
+    "medium": {
+        "part_fmt_drift": 0.12,
+        "supplier_dupe": 0.10,
+        "bad_email": 0.08,
+        "state_case": 0.10,
+        "date_flip": 0.05,
+        "price_error": 0.05,
+    },
+    "chaos": {
+        "part_fmt_drift": 0.30,
+        "supplier_dupe": 0.25,
+        "bad_email": 0.20,
+        "state_case": 0.25,
+        "date_flip": 0.15,
+        "price_error": 0.15,
+    },
 }
 
-CATEGORIES = ["fastener", "structural", "electrical", "hydraulic", "pneumatic",
-               "thermal", "optical", "sealing", "bearing", "drive"]
+CATEGORIES = [
+    "fastener",
+    "structural",
+    "electrical",
+    "hydraulic",
+    "pneumatic",
+    "thermal",
+    "optical",
+    "sealing",
+    "bearing",
+    "drive",
+]
 UOMS = ["EA", "FT", "IN", "LB", "KG", "M", "MM", "L", "GAL", "PKG"]
 CURRENCIES = ["USD", "USD", "USD", "EUR", "GBP", "CAD", "MXN"]
 ROLES = ["engineer", "manager", "technician", "buyer", "qa", "admin"]
 CO_STATES_CLEAN = ["open", "in-review", "approved", "closed", "rejected"]
-CO_STATES_DIRTY = ["open", "OPEN", "In-Work", "in_review", "Approved", "CLOSED",
-                    "closed", "rejected", "REJECTED"]
+CO_STATES_DIRTY = [
+    "open",
+    "OPEN",
+    "In-Work",
+    "in_review",
+    "Approved",
+    "CLOSED",
+    "closed",
+    "rejected",
+    "REJECTED",
+]
 PRIORITIES = ["low", "normal", "high", "critical"]
 
 
@@ -49,6 +87,7 @@ def _rates() -> dict:
 
 # ── Part number generation ────────────────────────────────────────────────────
 
+
 def _part_number(idx: int, rng: random.Random) -> str:
     rates = _rates()
     # Three eras of part numbering schemes used at Meridian Fabrication Co.
@@ -65,6 +104,7 @@ def _part_number(idx: int, rng: random.Random) -> str:
 
 # ── Parts ─────────────────────────────────────────────────────────────────────
 
+
 def generate_parts(count: int = 5000) -> list[dict]:
     rng = _rng(1)
     fake = _fake(1)
@@ -74,15 +114,17 @@ def generate_parts(count: int = 5000) -> list[dict]:
         sup_by = None
         if status in ("obsolete", "discontinued") and rng.random() < 0.6:
             sup_by = f"PN-{rng.randint(1, count):04d}"
-        parts.append({
-            "part_number": _part_number(i, rng),
-            "name": fake.bs().title()[:120],
-            "category": rng.choice(CATEGORIES),
-            "uom": rng.choice(UOMS),
-            "status": status,
-            "superseded_by": sup_by,
-            "created_at": fake.date_time_between(start_date="-8y", end_date="now"),
-        })
+        parts.append(
+            {
+                "part_number": _part_number(i, rng),
+                "name": fake.bs().title()[:120],
+                "category": rng.choice(CATEGORIES),
+                "uom": rng.choice(UOMS),
+                "status": status,
+                "superseded_by": sup_by,
+                "created_at": fake.date_time_between(start_date="-8y", end_date="now"),
+            }
+        )
     return parts
 
 
@@ -114,23 +156,35 @@ def generate_revisions(part_ids: list[int]) -> list[dict]:
             # Date flip: retroactive date (closed before opened) — intentional defect
             if rng.random() < rates["date_flip"] and j > 0:
                 eff = base_date - timedelta(days=rng.randint(1, 90))
-            revisions.append({
-                "part_id": part_id,
-                "rev_code": code,
-                "effective_date": eff,
-                "change_summary": fake.sentence(nb_words=rng.randint(6, 20)),
-            })
+            revisions.append(
+                {
+                    "part_id": part_id,
+                    "rev_code": code,
+                    "effective_date": eff,
+                    "change_summary": fake.sentence(nb_words=rng.randint(6, 20)),
+                }
+            )
     return revisions
 
 
 # ── Suppliers ────────────────────────────────────────────────────────────────
 
 _BASE_SUPPLIERS = [
-    "Vortex Metals", "Cascade Composites", "Pinnacle Alloys",
-    "Summit Fasteners", "Apex Hydraulics", "Delta Seals",
-    "Omega Bearings", "Titan Electrical", "Nova Pneumatics",
-    "Meridian Thermal", "Stellar Optics", "Crest Drive Systems",
-    "Horizon Polymers", "Zenith Coatings", "Atlas Springs",
+    "Vortex Metals",
+    "Cascade Composites",
+    "Pinnacle Alloys",
+    "Summit Fasteners",
+    "Apex Hydraulics",
+    "Delta Seals",
+    "Omega Bearings",
+    "Titan Electrical",
+    "Nova Pneumatics",
+    "Meridian Thermal",
+    "Stellar Optics",
+    "Crest Drive Systems",
+    "Horizon Polymers",
+    "Zenith Coatings",
+    "Atlas Springs",
 ]
 
 
@@ -147,17 +201,19 @@ def generate_suppliers(count: int = 400) -> list[dict]:
 
         # Supplier name duplication: same company, different name formatting
         if rng.random() < rates["supplier_dupe"] and i > len(_BASE_SUPPLIERS):
-            name = rng.choice([
-                base.upper(),
-                base.lower(),
-                f"{base} Inc.",
-                f"{base} LLC",
-                base,
-            ])
+            name = rng.choice(
+                [
+                    base.upper(),
+                    base.lower(),
+                    f"{base} Inc.",
+                    f"{base} LLC",
+                    base,
+                ]
+            )
         else:
             name = f"{base} {suffix}".strip() if suffix else base
 
-        code = f"SUP-{i+1:04d}"
+        code = f"SUP-{i + 1:04d}"
         while code in used_codes:
             code = f"SUP-{rng.randint(1, 9999):04d}"
         used_codes.add(code)
@@ -165,28 +221,34 @@ def generate_suppliers(count: int = 400) -> list[dict]:
         email = fake.company_email()
         if rng.random() < rates["bad_email"]:
             # Inject bad email formats
-            email = rng.choice([
-                email.replace("@", ""),
-                email + ".invalid",
-                "noreply",
-                fake.first_name(),
-            ])
+            email = rng.choice(
+                [
+                    email.replace("@", ""),
+                    email + ".invalid",
+                    "noreply",
+                    fake.first_name(),
+                ]
+            )
 
         country = fake.country_code()
-        suppliers.append({
-            "name": name,
-            "code": code,
-            "country": country,
-            "contact_email": email,
-            "active": rng.random() > 0.08,  # some defunct suppliers
-        })
+        suppliers.append(
+            {
+                "name": name,
+                "code": code,
+                "country": country,
+                "contact_email": email,
+                "active": rng.random() > 0.08,  # some defunct suppliers
+            }
+        )
     return suppliers
 
 
 # ── Change orders ────────────────────────────────────────────────────────────
 
-def generate_change_orders(part_ids: list[int], user_names: list[str],
-                            count: int = 20000) -> list[dict]:
+
+def generate_change_orders(
+    part_ids: list[int], user_names: list[str], count: int = 20000
+) -> list[dict]:
     rng = _rng(4)
     fake = _fake(4)
     rates = _rates()
@@ -206,23 +268,27 @@ def generate_change_orders(part_ids: list[int], user_names: list[str],
             if rng.random() < rates["date_flip"]:
                 closed = opened - timedelta(days=rng.randint(1, 30))
 
-        orders.append({
-            "co_number": f"CO-{i:06d}",
-            "part_id": rng.choice(part_ids),
-            "state": state,
-            "priority": rng.choice(PRIORITIES),
-            "description": fake.paragraph(nb_sentences=rng.randint(1, 4)),
-            "requested_by": rng.choice(user_names) if user_names else None,
-            "opened_at": opened,
-            "closed_at": closed,
-        })
+        orders.append(
+            {
+                "co_number": f"CO-{i:06d}",
+                "part_id": rng.choice(part_ids),
+                "state": state,
+                "priority": rng.choice(PRIORITIES),
+                "description": fake.paragraph(nb_sentences=rng.randint(1, 4)),
+                "requested_by": rng.choice(user_names) if user_names else None,
+                "opened_at": opened,
+                "closed_at": closed,
+            }
+        )
     return orders
 
 
 # ── Purchase orders ──────────────────────────────────────────────────────────
 
-def generate_purchase_orders(supplier_ids: list[int], part_ids: list[int],
-                              count: int = 30000) -> list[dict]:
+
+def generate_purchase_orders(
+    supplier_ids: list[int], part_ids: list[int], count: int = 30000
+) -> list[dict]:
     rng = _rng(5)
     fake = _fake(5)
     rates = _rates()
@@ -234,18 +300,21 @@ def generate_purchase_orders(supplier_ids: list[int], part_ids: list[int],
             price = price * rng.choice([100, 0.01, 1000])
 
         currency = rng.choice(CURRENCIES)
-        orders.append({
-            "supplier_id": rng.choice(supplier_ids),
-            "part_id": rng.choice(part_ids),
-            "qty": rng.randint(1, 10000),
-            "unit_price": price,
-            "currency": currency,
-            "order_date": fake.date_time_between(start_date="-6y", end_date="now"),
-        })
+        orders.append(
+            {
+                "supplier_id": rng.choice(supplier_ids),
+                "part_id": rng.choice(part_ids),
+                "qty": rng.randint(1, 10000),
+                "unit_price": price,
+                "currency": currency,
+                "order_date": fake.date_time_between(start_date="-6y", end_date="now"),
+            }
+        )
     return orders
 
 
 # ── Users ────────────────────────────────────────────────────────────────────
+
 
 def generate_users(count: int = 150) -> list[dict]:
     rng = _rng(6)
@@ -257,10 +326,12 @@ def generate_users(count: int = 150) -> list[dict]:
         while email in used_emails:
             email = fake.company_email()
         used_emails.add(email)
-        users.append({
-            "name": fake.name(),
-            "email": email,
-            "role": rng.choice(ROLES),
-            "active": rng.random() > 0.15,  # ~15% ex-employees
-        })
+        users.append(
+            {
+                "name": fake.name(),
+                "email": email,
+                "role": rng.choice(ROLES),
+                "active": rng.random() > 0.15,  # ~15% ex-employees
+            }
+        )
     return users

@@ -4,6 +4,7 @@ Emits mess_manifest.json describing every defect injected during seeding.
 This file is the 'answer key' PRD-2 uses to measure cleaning accuracy.
 All data is synthetic.
 """
+
 import json
 import os
 from datetime import datetime

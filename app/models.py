@@ -3,6 +3,7 @@
 Fictional company: Meridian Fabrication Co.
 All data is synthetic.
 """
+
 from datetime import datetime
 
 from sqlalchemy import (
@@ -60,9 +61,7 @@ class Supplier(Base):
     contact_email: Mapped[str | None] = mapped_column(String(256), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    purchase_orders: Mapped[list["PurchaseOrder"]] = relationship(
-        back_populates="supplier"
-    )
+    purchase_orders: Mapped[list["PurchaseOrder"]] = relationship(back_populates="supplier")
 
 
 class ChangeOrder(Base):

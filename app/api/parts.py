@@ -1,5 +1,4 @@
 """Parts API router — CRUD + cursor pagination + search."""
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -19,7 +18,7 @@ class PartOut(BaseModel):
     category: str
     uom: str
     status: str
-    superseded_by: Optional[str] = None
+    superseded_by: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -30,25 +29,22 @@ class PartCreate(BaseModel):
     category: str
     uom: str
     status: str = "active"
-    superseded_by: Optional[str] = None
+    superseded_by: str | None = None
 
 
 @router.get("", response_model=dict)
 def list_parts(
-    search: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
-    after: Optional[int] = Query(None, description="Cursor: last seen id"),
+    search: str | None = Query(None),
+    status: str | None = Query(None),
+    category: str | None = Query(None),
+    after: int | None = Query(None, description="Cursor: last seen id"),
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
 ):
     """List parts with cursor pagination and optional filtering."""
     q = db.query(Part)
     if search:
-        q = q.filter(
-            or_(Part.part_number.ilike(f"%{search}%"),
-                Part.name.ilike(f"%{search}%"))
-        )
+        q = q.filter(or_(Part.part_number.ilike(f"%{search}%"), Part.name.ilike(f"%{search}%")))
     if status:
         q = q.filter(Part.status == status)
     if category:
