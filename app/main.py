@@ -4,6 +4,8 @@ Fictional company: Meridian Fabrication Co.
 All data is synthetic.
 """
 
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -19,7 +21,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
-templates = Jinja2Templates(directory="app/ui/templates")
+# Anchor the template directory to this file so the app works regardless of
+# the working directory uvicorn is launched from.
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "ui" / "templates"))
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(parts.router)
@@ -45,9 +49,9 @@ def dashboard(request: Request):
         )
 
     return templates.TemplateResponse(
+        request,
         "dashboard.html",
         {
-            "request": request,
             "parts_count": parts_count,
             "suppliers_count": suppliers_count,
             "co_count": co_count,
@@ -67,9 +71,9 @@ def parts_list(request: Request, search: str = "", status: str = ""):
         items = q.order_by(Part.id).limit(200).all()
 
     return templates.TemplateResponse(
+        request,
         "parts.html",
         {
-            "request": request,
             "parts": items,
             "search": search,
             "status": status,
@@ -86,9 +90,9 @@ def suppliers_list(request: Request, search: str = ""):
         items = q.order_by(Supplier.id).limit(200).all()
 
     return templates.TemplateResponse(
+        request,
         "suppliers.html",
         {
-            "request": request,
             "suppliers": items,
             "search": search,
         },
@@ -104,9 +108,9 @@ def change_orders_list(request: Request, state: str = ""):
         items = q.order_by(ChangeOrder.id.desc()).limit(200).all()
 
     return templates.TemplateResponse(
+        request,
         "change_orders.html",
         {
-            "request": request,
             "change_orders": items,
             "state": state,
         },

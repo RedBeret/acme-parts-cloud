@@ -3,6 +3,8 @@
 [![CI](https://github.com/RedBeret/acme-parts-cloud/actions/workflows/ci.yml/badge.svg)](https://github.com/RedBeret/acme-parts-cloud/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-SQLAlchemy%202-009688.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Postgres%2016-2496ED.svg)](compose.yaml)
 
 > **All data is synthetic.** Meridian Fabrication Co. is a fictional company created for integration demonstrations. No real companies, part numbers, or employees are represented.
 

@@ -1,7 +1,9 @@
 """API smoke tests — run against a live seeded instance.
 
-Skip these in CI (requires Docker + Postgres). Run locally with:
-    docker compose up -d && pytest tests/test_api_smoke.py -v
+These are skipped unless SMOKE_API_URL points at a running instance.
+CI runs them in the docker-smoke job; run locally with:
+    docker compose up -d
+    SMOKE_API_URL=http://localhost:8000 pytest tests/test_api_smoke.py -v
 
 All data is synthetic.
 """
