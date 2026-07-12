@@ -128,6 +128,22 @@ samples/
   suppliers_legacy_sample.csv — Windows-1252 encoding
 ```
 
+Spot the drift — same part, two export versions:
+
+```csv
+# parts_v1 (2019-era headers)
+partNo,partName,cat,measure,status
+PN-0001,Hex Bolt M6,Fasteners,EA,active
+2019-PN-0042,Nylon Washer,Fasteners,EA,active
+
+# parts_v2 (renamed uom column, new legacy_ref, different column order)
+partNo,partName,uom,cat,status,legacy_ref
+PN-0001,Hex Bolt M6,EA,Fasteners,active,
+2019-PN-0042,Nylon Washer,EA,Fasteners,active,
+```
+
+Note `2019-PN-0042` — a part still carrying its pre-migration number format. The seeder plants a known quantity of these and records the count in `mess_manifest.json`, so any cleanup tool you point at this data can be scored, not just eyeballed.
+
 Full exports are available at runtime:
 
 ```bash
