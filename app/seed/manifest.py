@@ -9,55 +9,91 @@ import json
 import os
 from pathlib import Path
 
+DEFECT_RECORD_KEYS = (
+    "part_fmt_drift_count",
+    "rev_scheme_mix_count",
+    "rev_date_flip_count",
+    "supplier_dupe_count",
+    "bad_email_count",
+    "defunct_supplier_count",
+    "inactive_user_co_ref_count",
+    "co_state_mess_count",
+    "co_date_flip_count",
+    "price_error_count",
+    "currency_mix_count",
+    "audit_missing_actor_count",
+)
 
-def write_manifest(stats: dict) -> Path:
-    """Write mess_manifest.json to the repo root (or MANIFEST_PATH env var)."""
+
+def write_manifest(stats: dict, defect_records: dict[str, list[str | int]] | None = None) -> Path:
+    """Write counts and stable record identifiers for every injected defect."""
+    supplied_records = defect_records or {}
+    records = {name: list(supplied_records.get(name, [])) for name in DEFECT_RECORD_KEYS}
+    counts = {name: len(ids) for name, ids in records.items()}
     manifest = {
-        "manifest_version": 1,
+        "manifest_version": 2,
         "seed": int(os.getenv("SEED", "42")),
         "messiness": os.getenv("MESSINESS", "medium"),
         "synthetic_notice": "All data is synthetic. Meridian Fabrication Co. is fictional.",
+        "defect_counts": dict(sorted(counts.items())),
+        "defect_records": dict(sorted(records.items())),
         "defects": {
             "parts": {
-                "part_number_format_drift": stats.get("part_fmt_drift_count", 0),
+                "part_number_format_drift": counts["part_fmt_drift_count"],
                 "description": (
                     "Part numbers using legacy era formats (2019-PN-N or P{N}) "
                     "instead of current PN-{N:04d} scheme."
                 ),
             },
             "part_revisions": {
-                "scheme_mixing": stats.get("rev_scheme_mix_count", 0),
-                "retroactive_dates": stats.get("rev_date_flip_count", 0),
+                "scheme_mixing": counts["rev_scheme_mix_count"],
+                "retroactive_dates": counts["rev_date_flip_count"],
                 "description": (
                     "Rev codes mixing letter and numeric schemes within the same part. "
                     "Retroactive effective dates where revision predates predecessor."
                 ),
             },
             "suppliers": {
-                "near_duplicate_names": stats.get("supplier_dupe_count", 0),
-                "invalid_emails": stats.get("bad_email_count", 0),
-                "defunct_active_refs": stats.get("defunct_supplier_count", 0),
+                "near_duplicate_names": counts["supplier_dupe_count"],
+                "invalid_emails": counts["bad_email_count"],
+                "defunct_active_refs": counts["defunct_supplier_count"],
                 "description": (
                     "Supplier names appearing in multiple casings/abbreviations. "
                     "Invalid or malformed contact email addresses. "
                     "Inactive suppliers still referenced in purchase orders."
                 ),
             },
+            "users": {
+                "change_orders_referencing_inactive_users": counts["inactive_user_co_ref_count"],
+                "description": "Change orders requested by users who are now inactive.",
+            },
             "change_orders": {
-                "state_vocabulary_inconsistency": stats.get("co_state_mess_count", 0),
-                "impossible_dates": stats.get("co_date_flip_count", 0),
+                "state_vocabulary_inconsistency": counts["co_state_mess_count"],
+                "impossible_dates": counts["co_date_flip_count"],
                 "description": (
                     "State field using mixed vocabulary (open/OPEN/In-Work). "
                     "Closed timestamps before opened timestamps."
                 ),
             },
             "purchase_orders": {
-                "price_magnitude_errors": stats.get("price_error_count", 0),
-                "mixed_currencies": stats.get("currency_mix_count", 0),
+                "price_magnitude_errors": counts["price_error_count"],
+                "mixed_currencies": counts["currency_mix_count"],
                 "description": (
-                    "Unit prices with magnitude errors (100x or 0.01x off). "
+                    "Unit prices with injected magnitude errors (100x, 0.01x, or 1000x). "
                     "Mixed currencies without conversion (compare at face value)."
                 ),
+            },
+            "audit_log": {
+                "missing_actors": counts["audit_missing_actor_count"],
+                "description": "Rows without an actor.",
+            },
+            "exports": {
+                "parts_v1_legacy_headers": True,
+                "parts_v2_schema_drift": True,
+                "change_orders_merged_header": True,
+                "change_orders_embedded_newlines": True,
+                "suppliers_legacy_encoding": "cp1252",
+                "description": "Intentional schema, layout, and encoding defects in exports.",
             },
         },
         "row_counts": {

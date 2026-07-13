@@ -1,6 +1,51 @@
-partNo,partName,cat,measure,status
-PN-0001,Hex Bolt M6,Fasteners,EA,active
-2019-PN-0042,Nylon Washer,Fasteners,EA,active
-P7,Bearing Race (legacy),Bearings,EA,obsolete
-PN-0099,Compression Spring,Springs,EA,active
-2019-PN-0107,Valve Stem,Pneumatics,EA,active
+partNo,partName,cat,measure,partStatus
+PN-0001,Integrate Front-End Eyeballs,electrical,L,active
+PN-0002,Disintermediate Mission-Critical Bandwidth,structural,L,active
+PN-0003,Expedite Vertical Mindshare,fastener,GAL,discontinued
+PN-0004,Disintermediate User-Centric Interfaces,drive,GAL,active
+PN-0005,Iterate Sticky Initiatives,fastener,FT,active
+PN-0006,Transform Granular Mindshare,structural,IN,active
+PN-0007,Enable Integrated Metrics,electrical,MM,obsolete
+PN-0008,Empower Viral Architectures,pneumatic,PKG,discontinued
+PN-0009,Benchmark Leading-Edge Roi,fastener,PKG,active
+PN-0010,E-Enable Frictionless Technologies,fastener,IN,active
+PN-0011,Optimize Sticky Applications,structural,GAL,active
+P12,Visualize Leading-Edge Platforms,drive,EA,discontinued
+PN-0013,Target Open-Source Supply-Chains,sealing,M,active
+PN-0014,Scale Visionary Communities,sealing,IN,active
+PN-0015,Evolve Turn-Key Markets,thermal,EA,active
+PN-0016,Empower Out-Of-The-Box Roi,electrical,PKG,discontinued
+PN-0017,Optimize One-To-One Content,bearing,FT,active
+PN-0018,Revolutionize Bricks-And-Clicks E-Commerce,thermal,MM,active
+PN-0019,Deploy Strategic Convergence,optical,PKG,active
+PN-0020,Evolve B2C Networks,structural,IN,active
+PN-0021,Transform Cutting-Edge Systems,structural,GAL,discontinued
+PN-0022,Orchestrate Clicks-And-Mortar Platforms,fastener,IN,active
+P23,Transition 24/7 Channels,structural,IN,active
+PN-0024,Revolutionize Cross-Platform Initiatives,thermal,FT,active
+PN-0025,Synthesize Back-End Bandwidth,sealing,M,obsolete
+2019-PN-26,Iterate Integrated Infrastructures,hydraulic,MM,active
+PN-0027,Evolve Best-Of-Breed Methodologies,drive,MM,active
+PN-0028,Innovate Wireless Portals,optical,M,active
+PN-0029,Deploy World-Class Interfaces,electrical,GAL,active
+PN-0030,Reinvent Virtual Solutions,hydraulic,EA,active
+PN-0031,Streamline Bleeding-Edge Content,hydraulic,M,active
+PN-0032,Aggregate Killer Architectures,optical,MM,active
+P33,Synergize Magnetic Markets,structural,EA,active
+PN-0034,Streamline Mission-Critical Web-Readiness,drive,GAL,active
+PN-0035,Cultivate One-To-One Applications,structural,PKG,obsolete
+PN-0036,Enhance End-To-End Systems,electrical,L,active
+PN-0037,Orchestrate Interactive Synergies,fastener,FT,active
+PN-0038,Enhance 24/7 Networks,drive,MM,active
+PN-0039,Aggregate Enterprise E-Commerce,structural,EA,active
+PN-0040,Reinvent Enterprise Initiatives,thermal,M,active
+PN-0041,Morph Global Users,bearing,PKG,active
+PN-0042,Scale Interactive Solutions,hydraulic,LB,active
+2019-PN-43,Evolve Real-Time Info-Mediaries,pneumatic,FT,active
+PN-0044,Empower Intuitive Info-Mediaries,electrical,M,active
+2019-PN-45,Orchestrate Turn-Key E-Services,electrical,KG,active
+PN-0046,Architect Collaborative Functionalities,pneumatic,L,discontinued
+PN-0047,Maximize Visionary Content,bearing,L,active
+PN-0048,Grow Extensible Schemas,optical,GAL,obsolete
+P49,Engage Cutting-Edge E-Commerce,electrical,PKG,discontinued
+PN-0050,Maximize Intuitive E-Tailers,structural,LB,active
