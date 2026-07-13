@@ -28,6 +28,22 @@ def test_healthz():
     assert r.json()["status"] == "ok"
 
 
+def test_ui_pages_render():
+    import httpx
+
+    for path in ("/", "/parts", "/suppliers", "/change-orders"):
+        r = httpx.get(f"{SMOKE_URL}{path}")
+        assert r.status_code == 200
+        assert "<html" in r.text
+
+
+def test_admin_reset_is_disabled_by_default():
+    import httpx
+
+    r = httpx.post(f"{SMOKE_URL}/admin/reset?seed=99")
+    assert r.status_code == 403
+
+
 def test_list_parts_pagination():
     import httpx
 
