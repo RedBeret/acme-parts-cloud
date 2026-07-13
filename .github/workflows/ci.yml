@@ -34,7 +34,7 @@ jobs:
           ruff format --check .
 
       - name: Unit tests (no DB required)
-        run: pytest tests/test_seed.py -v
+        run: pytest -v
 
   docker-smoke:
     runs-on: ubuntu-latest

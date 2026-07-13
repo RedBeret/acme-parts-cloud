@@ -6,6 +6,7 @@ Seed value controls all randomness — same seed + messiness → same output.
 
 import os
 import random
+from collections.abc import MutableMapping
 from datetime import timedelta
 
 from faker import Faker
@@ -62,6 +63,7 @@ CO_STATES_DIRTY = [
     "In-Work",
     "in_review",
     "Approved",
+    "APPROVED",
     "CLOSED",
     "closed",
     "rejected",
@@ -83,7 +85,19 @@ def _fake(extra: int = 0) -> Faker:
 
 
 def _rates() -> dict:
-    return MESS_RATES.get(MESSINESS, MESS_RATES["medium"])
+    try:
+        return MESS_RATES[MESSINESS]
+    except KeyError as exc:
+        raise ValueError(f"MESSINESS must be one of: {', '.join(MESS_RATES)}") from exc
+
+
+def _record(
+    defects: MutableMapping[str, list[str | int]] | None,
+    name: str,
+    record_id: str | int,
+) -> None:
+    if defects is not None:
+        defects.setdefault(name, []).append(record_id)
 
 
 # ── Part number generation ────────────────────────────────────────────────────
@@ -93,39 +107,50 @@ def _part_number(idx: int, rng: random.Random) -> str:
     rates = _rates()
     # Three eras of part numbering schemes used at Meridian Fabrication Co.
     if rng.random() < rates["part_fmt_drift"]:
-        # Old era: 2019-PN-{N}
-        return f"2019-PN-{idx}"
-    elif rng.random() < 0.15:
-        # Very old era: P{N} (no padding)
+        if rng.random() < 0.5:
+            return f"2019-PN-{idx}"
         return f"P{idx}"
-    else:
-        # Current: PN-{N:04d}
-        return f"PN-{idx:04d}"
+    return f"PN-{idx:04d}"
 
 
 # ── Parts ─────────────────────────────────────────────────────────────────────
 
 
-def generate_parts(count: int = 5000) -> list[dict]:
+def generate_parts(
+    count: int = 5000,
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
+) -> list[dict]:
     rng = _rng(1)
     fake = _fake(1)
     parts = []
     for i in range(1, count + 1):
         status = rng.choice(["active"] * 8 + ["obsolete", "discontinued"])
-        sup_by = None
-        if status in ("obsolete", "discontinued") and rng.random() < 0.6:
-            sup_by = f"PN-{rng.randint(1, count):04d}"
+        part_number = _part_number(i, rng)
+        if not part_number.startswith("PN-"):
+            _record(defects, "part_fmt_drift_count", part_number)
         parts.append(
             {
-                "part_number": _part_number(i, rng),
+                "part_number": part_number,
                 "name": fake.bs().title()[:120],
                 "category": rng.choice(CATEGORIES),
                 "uom": rng.choice(UOMS),
                 "status": status,
-                "superseded_by": sup_by,
+                "superseded_by": None,
                 "created_at": fake.date_time_between(start_date="-8y", end_date="now"),
             }
         )
+    supersession_rng = _rng(101)
+    for index, part in enumerate(parts):
+        if (
+            len(parts) > 1
+            and part["status"] in ("obsolete", "discontinued")
+            and supersession_rng.random() < 0.6
+        ):
+            target_index = supersession_rng.randrange(len(parts) - 1)
+            if target_index >= index:
+                target_index += 1
+            part["superseded_by"] = parts[target_index]["part_number"]
     return parts
 
 
@@ -135,7 +160,11 @@ _REV_LETTERS = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 _REV_NUMS = [str(i) for i in range(1, 20)]
 
 
-def generate_revisions(part_ids: list[int]) -> list[dict]:
+def generate_revisions(
+    part_ids: list[int],
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
+) -> list[dict]:
     rng = _rng(2)
     fake = _fake(2)
     revisions = []
@@ -145,18 +174,25 @@ def generate_revisions(part_ids: list[int]) -> list[dict]:
         # Mix letter and numeric schemes (messiness: gaps + scheme mixing)
         scheme = rng.choice(["letters", "numbers"])
         pool = _REV_LETTERS if scheme == "letters" else _REV_NUMS
-        chosen = sorted(rng.sample(pool, min(n_revs, len(pool))))
+        chosen = sorted(
+            rng.sample(pool, min(n_revs, len(pool))),
+            key=int if scheme == "numbers" else None,
+        )
         # Occasionally mix schemes (messiness)
-        if rng.random() < rates["part_fmt_drift"]:
+        if len(chosen) > 1 and rng.random() < rates["part_fmt_drift"]:
             other = _REV_NUMS if scheme == "letters" else _REV_LETTERS
             chosen[-1] = rng.choice(other)
+            _record(defects, "rev_scheme_mix_count", part_id)
 
-        base_date = fake.date_time_between(start_date="-5y", end_date="-6m")
+        previous_date = None
         for j, code in enumerate(chosen):
-            eff = base_date + timedelta(days=j * rng.randint(30, 180))
-            # Date flip: retroactive date (closed before opened) — intentional defect
-            if rng.random() < rates["date_flip"] and j > 0:
-                eff = base_date - timedelta(days=rng.randint(1, 90))
+            if previous_date is None:
+                eff = fake.date_time_between(start_date="-5y", end_date="-6m")
+            else:
+                eff = previous_date + timedelta(days=rng.randint(30, 180))
+            if previous_date is not None and rng.random() < rates["date_flip"]:
+                eff = previous_date - timedelta(days=rng.randint(1, 90))
+                _record(defects, "rev_date_flip_count", f"{part_id}:{code}")
             revisions.append(
                 {
                     "part_id": part_id,
@@ -165,6 +201,7 @@ def generate_revisions(part_ids: list[int]) -> list[dict]:
                     "change_summary": fake.sentence(nb_words=rng.randint(6, 20)),
                 }
             )
+            previous_date = eff
     return revisions
 
 
@@ -186,10 +223,15 @@ _BASE_SUPPLIERS = [
     "Horizon Polymers",
     "Zenith Coatings",
     "Atlas Springs",
+    "Élan Components",
 ]
 
 
-def generate_suppliers(count: int = 400) -> list[dict]:
+def generate_suppliers(
+    count: int = 400,
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
+) -> list[dict]:
     rng = _rng(3)
     fake = _fake(3)
     rates = _rates()
@@ -198,29 +240,30 @@ def generate_suppliers(count: int = 400) -> list[dict]:
 
     for i in range(count):
         base = _BASE_SUPPLIERS[i % len(_BASE_SUPPLIERS)]
-        suffix = fake.company_suffix() if rng.random() > 0.4 else ""
-
-        # Supplier name duplication: same company, different name formatting
-        if rng.random() < rates["supplier_dupe"] and i > len(_BASE_SUPPLIERS):
+        code = f"SUP-{i + 1:04d}"
+        if rng.random() < rates["supplier_dupe"] and suppliers:
+            source = rng.choice(suppliers)
+            source_name = source["name"]
             name = rng.choice(
                 [
-                    base.upper(),
-                    base.lower(),
-                    f"{base} Inc.",
-                    f"{base} LLC",
-                    base,
+                    source_name.upper(),
+                    source_name.lower(),
+                    f"{source_name} Inc.",
+                    f"{source_name} LLC",
+                    source_name,
                 ]
             )
+            _record(defects, "supplier_dupe_count", f"{code}->{source['code']}")
         else:
-            name = f"{base} {suffix}".strip() if suffix else base
+            name = base if i < len(_BASE_SUPPLIERS) else f"{base} Division {i + 1:03d}"
 
-        code = f"SUP-{i + 1:04d}"
         while code in used_codes:
             code = f"SUP-{rng.randint(1, 9999):04d}"
         used_codes.add(code)
 
         email = fake.company_email()
         if rng.random() < rates["bad_email"]:
+            _record(defects, "bad_email_count", f"SUP-{i + 1:04d}")
             # Inject bad email formats
             email = rng.choice(
                 [
@@ -248,7 +291,11 @@ def generate_suppliers(count: int = 400) -> list[dict]:
 
 
 def generate_change_orders(
-    part_ids: list[int], user_names: list[str], count: int = 20000
+    part_ids: list[int],
+    user_names: list[str],
+    count: int = 20000,
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
 ) -> list[dict]:
     rng = _rng(4)
     fake = _fake(4)
@@ -260,6 +307,8 @@ def generate_change_orders(
             state = rng.choice(CO_STATES_DIRTY)
         else:
             state = rng.choice(CO_STATES_CLEAN)
+        if state not in CO_STATES_CLEAN:
+            _record(defects, "co_state_mess_count", f"CO-{i:06d}")
 
         opened = fake.date_time_between(start_date="-4y", end_date="-1d")
         closed = None
@@ -268,6 +317,7 @@ def generate_change_orders(
             # Date flip: closed before opened (intentional defect)
             if rng.random() < rates["date_flip"]:
                 closed = opened - timedelta(days=rng.randint(1, 30))
+                _record(defects, "co_date_flip_count", f"CO-{i:06d}")
 
         orders.append(
             {
@@ -288,19 +338,26 @@ def generate_change_orders(
 
 
 def generate_purchase_orders(
-    supplier_ids: list[int], part_ids: list[int], count: int = 30000
+    supplier_ids: list[int],
+    part_ids: list[int],
+    count: int = 30000,
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
 ) -> list[dict]:
     rng = _rng(5)
     fake = _fake(5)
     rates = _rates()
     orders = []
-    for _ in range(count):
+    for i in range(1, count + 1):
         price = round(rng.uniform(0.10, 5000.00), 2)
         # Price magnitude error (intentional defect)
         if rng.random() < rates["price_error"]:
             price = price * rng.choice([100, 0.01, 1000])
+            _record(defects, "price_error_count", i)
 
         currency = rng.choice(CURRENCIES)
+        if currency != "USD":
+            _record(defects, "currency_mix_count", i)
         orders.append(
             {
                 "supplier_id": rng.choice(supplier_ids),
@@ -345,18 +402,20 @@ def generate_audit_log(
     entity_ids: dict[str, list[int]],
     user_names: list[str],
     count: int = 200000,
+    *,
+    defects: MutableMapping[str, list[str | int]] | None = None,
 ) -> list[dict]:
     rng = _rng(7)
     fake = _fake(7)
     entities = [name for name, ids in entity_ids.items() if ids]
     rows = []
 
-    for _ in range(count):
+    for i in range(1, count + 1):
         entity = rng.choice(entities)
         actor = rng.choice(user_names) if user_names and rng.random() > 0.12 else None
+        if actor is None:
+            _record(defects, "audit_missing_actor_count", i)
         ts = fake.date_time_between(start_date="-4y", end_date="now")
-        if rng.random() < 0.03:
-            ts = ts - timedelta(hours=rng.randint(1, 72))
 
         rows.append(
             {

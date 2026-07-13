@@ -1,6 +1,51 @@
-supplier_code,name,country,contact_email,active
-VRT-001,Vortex Metals,US,procurement@vortex.com,1
-VRT-001B,Vortex Metals Inc.,US,procurement@vortex.com,1
-APC-022,Apex Composites,CA,info@apexcomp.ca,1
-GBL-055,Global Bearings Ltd,GB,sales@globalbear.co.uk,0
-APC-099,Apex Composites Corp,CA,info@apexcomp.ca,1
+supplier_name,supplier_code,country,email
+Vortex Metals,SUP-0001,CI,robert41@morgan-jones.com
+Cascade Composites,SUP-0002,PS,lindsey40jones.com
+Pinnacle Alloys,SUP-0003,LI,ajones@graves.com
+Summit Fasteners,SUP-0004,MW,michael51@davis-potter.com
+Apex Hydraulics,SUP-0005,HU,brittany07@buck-bell.com
+Delta Seals,SUP-0006,CV,bdawson@clark-cruz.biz
+Omega Bearings,SUP-0007,VU,jspencer@brown-robertson.com
+Pinnacle Alloys Inc.,SUP-0008,CA,lucas22@dean.biz
+Nova Pneumatics,SUP-0009,LS,hansonbarbara@harvey-gibson.com
+Meridian Thermal,SUP-0010,IN,teresa83@johnson-gay.org
+Stellar Optics,SUP-0011,MD,ndavis@glover.com
+Crest Drive Systems,SUP-0012,MW,tiffanynorton@miller.info
+Horizon Polymers,SUP-0013,LI,patrick66@mckinney.com
+Zenith Coatings,SUP-0014,SK,xyoung@mercado-lewis.biz
+Atlas Springs,SUP-0015,HT,maldonadobrittany@chase.com
+Élan Components,SUP-0016,TD,paulabrown@howell.org
+Vortex Metals Division 017,SUP-0017,CH,lisa78@james.info
+Cascade Composites Division 018,SUP-0018,MC,yknightcollier.com
+Pinnacle Alloys Division 019,SUP-0019,CH,christopher82@murphy-smith.com
+Summit Fasteners Division 020,SUP-0020,TL,ellenvargas@ortiz.net
+Apex Hydraulics Division 021,SUP-0021,IT,connieyates@sharp.com
+Pinnacle Alloys Division 019 Inc.,SUP-0022,GR,cindyfigueroa@johnston-mclean.biz
+Omega Bearings Division 023,SUP-0023,NG,clarkcolin@bridges.org
+Titan Electrical Division 024,SUP-0024,ML,mark84@nelson-smith.biz
+Vortex Metals,SUP-0025,SM,timothycampbell@davis.info
+summit fasteners division 020,SUP-0026,LU,ffrye@hunter.net
+Apex Hydraulics LLC,SUP-0027,MX,robertsherman@vasquez.com
+Crest Drive Systems Division 028,SUP-0028,UA,monicahanson@gomez.com
+Horizon Polymers Division 029,SUP-0029,TO,cwarren@anderson-williams.com
+Zenith Coatings Division 030,SUP-0030,SN,nancygardner@mitchell.net
+Atlas Springs Division 031,SUP-0031,LA,matthewdean@garcia-randall.com
+Élan Components Division 032,SUP-0032,MN,rbrooks@davenport-white.biz
+Vortex Metals Division 033,SUP-0033,CV,sheenagriffin@james-hunt.biz
+Cascade Composites Division 034,SUP-0034,GB,hdavis@bentley-evans.com
+Pinnacle Alloys Division 035,SUP-0035,AZ,pamelaberg@reid.com
+Summit Fasteners Division 036,SUP-0036,SC,Jacob
+Apex Hydraulics Division 037,SUP-0037,SN,michael04@mosley.info.invalid
+Delta Seals,SUP-0038,FI,delgadogeorge@kramer-peterson.com
+Omega Bearings Division 039,SUP-0039,AD,randall34@taylor.com
+Titan Electrical Division 040,SUP-0040,IS,seanschroeder@nelson.com
+Nova Pneumatics Division 041,SUP-0041,GW,millerjason@cook-church.com
+Meridian Thermal Division 042,SUP-0042,ID,ryanwalker@dixon-cantu.com
+Stellar Optics Division 043,SUP-0043,GD,sara50@santiago-mccann.com
+Crest Drive Systems Division 044,SUP-0044,IL,vgordon@nash.net
+Horizon Polymers Division 045,SUP-0045,SR,solomontony@warner.com
+Zenith Coatings Division 046,SUP-0046,HT,jeffreywoodard@moore.com
+Atlas Springs Division 047,SUP-0047,TN,chelsea77@dalton-gray.net
+Élan Components Division 048,SUP-0048,SN,yreynolds@smith-wallace.net
+Vortex Metals Division 049,SUP-0049,SL,ffields@stewart.net
+vortex metals,SUP-0050,SZ,lbarnes@cooper.com
