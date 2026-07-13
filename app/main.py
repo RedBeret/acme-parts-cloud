@@ -18,7 +18,7 @@ from app.models import ChangeOrder, Part, Supplier
 app = FastAPI(
     title="AcmeParts Cloud",
     description=("Synthetic enterprise sandbox — Meridian Fabrication Co. All data is fictional."),
-    version="1.0.0",
+    version="1.0.1",
 )
 
 # Anchor the template directory to this file so the app works regardless of
