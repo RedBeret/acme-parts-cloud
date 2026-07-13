@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: acme
       POSTGRES_PASSWORD: acme
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -18,11 +18,13 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       DATABASE_URL: postgresql+psycopg2://acme:acme@db:5432/acmeparts
       SEED: "42"
       MESSINESS: "medium"
+      ENABLE_ADMIN_RESET: "${ENABLE_ADMIN_RESET:-false}"
+      ADMIN_RESET_TOKEN: "${ADMIN_RESET_TOKEN:-}"
       PARTS_COUNT: "${PARTS_COUNT:-5000}"
       SUPPLIERS_COUNT: "${SUPPLIERS_COUNT:-400}"
       USERS_COUNT: "${USERS_COUNT:-150}"
