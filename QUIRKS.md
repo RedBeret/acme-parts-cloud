@@ -71,7 +71,7 @@ Some `closed_at` timestamps precede `opened_at`. This happens in real systems wh
 ## Purchase Orders
 
 **Price magnitude errors:**
-A small percentage of `unit_price` values are off by a factor of 100 (entered as cents instead of dollars, or vice versa). These are not outlier products — they're data entry errors.
+A small percentage of `unit_price` values are multiplied by `100`, `0.01`, or `1000`. These are not outlier products — they're data entry errors.
 
 **Mixed currencies without conversion:**
 `unit_price` is stored in `currency` (USD, EUR, GBP, etc.), but there is no exchange rate table and prices are not normalized. Comparing `SUM(unit_price)` across currencies produces a meaningless number — this is the correct behavior for a real system that accumulated international suppliers without a finance module.
@@ -82,11 +82,6 @@ A small percentage of `unit_price` values are off by a factor of 100 (entered as
 
 **Missing actors:**
 Some audit log rows have `actor = NULL`. These represent automated system actions or records migrated from a system that didn't capture the actor.
-
-**Clock skew:**
-Timestamps on audit rows are not guaranteed to be monotonically increasing within a session. This reflects real systems where application servers run in different time zones or NTP sync is imperfect.
-
----
 
 ## Exports
 
@@ -105,10 +100,12 @@ The `samples/` directory contains small committed samples of each file so README
 
 Control with `MESSINESS=clean|medium|chaos` environment variable.
 
-| Level | Effect |
+| Level | Configurable injection effect |
 |-------|--------|
 | `clean` | Defect injection rates ~2%. Useful for baseline testing. |
 | `medium` | Defect injection rates ~10%. Realistic enterprise system. **(default)** |
 | `chaos` | Defect injection rates ~25%. Stress-test your cleaning logic. |
 
-The `mess_manifest.json` file emitted by the seeder records exactly which defects were injected and at what counts — use it as ground truth when building or evaluating cleaning pipelines.
+These levels control format, duplicate, email, state, date, and price injections. Mixed currencies, inactive records, missing actors, and export-format quirks are structural and remain at fixed rates.
+
+The `mess_manifest.json` file emitted by the seeder records stable affected-row keys under `defect_records` and counts derived from those keys under `defect_counts`. Use manifest v2 as ground truth when building or evaluating cleaning pipelines.

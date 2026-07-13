@@ -26,7 +26,7 @@ Built for engineers who need a realistic target system to build and demo data pi
 | Change Orders | 20,000 | 5 state vocabulary variants, impossible dates |
 | Purchase Orders | 30,000 | Mixed currencies, price magnitude errors |
 | Users | 150 | Inactive users still referenced in COs |
-| Audit Log | auto | Missing actors, clock skew |
+| Audit Log | auto | Missing actors |
 
 See [QUIRKS.md](QUIRKS.md) for the full defect catalog.
 
@@ -92,13 +92,15 @@ uvicorn app.main:app --reload
 
 Control defect injection with the `MESSINESS` environment variable:
 
-| Level | Defect rate | Use case |
+| Level | Configurable injection rate | Use case |
 |-------|-------------|----------|
 | `clean` | ~2% | Baseline; test happy-path pipelines |
 | `medium` | ~10% | Default; realistic enterprise system |
 | `chaos` | ~25% | Stress-test your cleaning and dedup logic |
 
-The seeder writes `mess_manifest.json` after each run — a machine-readable ground-truth file recording exactly which defects were injected and at what counts.
+These rates apply to configurable format, duplicate, email, state, date, and price injections. Structural quirks such as mixed currencies, inactive records, missing actors, and export schemas remain present at fixed rates.
+
+The seeder writes `mess_manifest.json` after each run. Manifest v2 records a stable row key for every injected defect and derives its summary counts from those keys.
 
 ---
 
@@ -106,12 +108,14 @@ The seeder writes `mess_manifest.json` after each run — a machine-readable gro
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/parts` | GET | List/search parts (`q`, `status`, `category`, `after`) |
-| `/parts/{id}` | GET | Single part with revisions |
-| `/suppliers` | GET | List/search suppliers (`q`, `active`, `after`) |
-| `/change-orders` | GET | List COs (`q`, `state`, `priority`, `after`) |
+| `/api/parts` | GET | List/search parts (`search`, `status`, `category`, `after`) |
+| `/api/parts/{id}` | GET | Get one part |
+| `/api/suppliers` | GET | List/search suppliers (`search`, `active`, `after`) |
+| `/api/suppliers/{id}` | GET | Get one supplier |
+| `/api/change-orders` | GET | List COs (`search`, `state`, `priority`, `after`) |
+| `/api/change-orders/{id}` | GET | Get one change order |
 | `/admin/healthz` | GET | Liveness check |
-| `/admin/reset` | POST | Reseed with `?seed=N` |
+| `/admin/reset` | POST | Opt-in reseed with `?seed=N` |
 | `/docs` | GET | Interactive Swagger UI |
 
 All list endpoints use **cursor pagination** via the `after` parameter (last seen id).
@@ -127,24 +131,20 @@ samples/
   parts_v1_sample.csv         — 2019-era column names
   parts_v2_sample.csv         — schema drift (extra legacy_ref column)
   change_orders_sample.xlsx   — merged header row, embedded newlines
-  suppliers_legacy_sample.csv — Windows-1252 encoding
+  suppliers_legacy_sample.csv — UTF-8 preview of the Windows-1252 full export
 ```
 
 Spot the drift — same part, two export versions:
 
 ```csv
 # parts_v1 (2019-era headers)
-partNo,partName,cat,measure,status
-PN-0001,Hex Bolt M6,Fasteners,EA,active
-2019-PN-0042,Nylon Washer,Fasteners,EA,active
+partNo,partName,cat,measure,partStatus
 
 # parts_v2 (renamed uom column, new legacy_ref, different column order)
-partNo,partName,uom,cat,status,legacy_ref
-PN-0001,Hex Bolt M6,EA,Fasteners,active,
-2019-PN-0042,Nylon Washer,EA,Fasteners,active,
+part_number,name,uom,category,status,superseded_by,created_at,legacy_ref
 ```
 
-Note `2019-PN-0042` — a part still carrying its pre-migration number format. The seeder plants a known quantity of these and records the count in `mess_manifest.json`, so any cleanup tool you point at this data can be scored, not just eyeballed.
+The committed samples contain both legacy part-number formats. The seeder records each affected key in `mess_manifest.json`, so any cleanup tool you point at this data can be scored, not just eyeballed.
 
 Full exports are available at runtime:
 
@@ -175,8 +175,10 @@ Every one of those defects is recorded in `mess_manifest.json` when the data is 
 ## Reseed on Demand
 
 ```bash
-# Via API
-curl -X POST "http://localhost:8000/admin/reset?seed=99"
+# Via API (disabled by default)
+ADMIN_RESET_TOKEN="choose-a-local-token" ENABLE_ADMIN_RESET=true docker compose up -d
+curl -X POST -H "X-Admin-Reset-Token: choose-a-local-token" \
+  "http://localhost:8000/admin/reset?seed=99"
 
 # Via CLI (inside container)
 docker compose exec api python -m app.seed.run --reset
